@@ -2,6 +2,8 @@
 
 A Rust-based tool that automatically renames screenshots and images using OpenAI's GPT-4 Vision API. The tool analyzes image content and generates descriptive, meaningful filenames following a consistent naming convention.
 
+Demo video [here](https://x.com/anubhavitis/status/1922303569639702976)
+
 ## Features
 
 - Automatic image analysis using GPT-4 Vision API
