@@ -1,0 +1,11 @@
+[package]
+name = "screenshot-auto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+notify = "6"
+chrono = "0.4"
+simplelog = "0.12"
+log = "0.4"
+dirs = "5.0"
