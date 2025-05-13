@@ -1,6 +1,7 @@
 use chrono::Local;
 use log::{error, info};
-use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Result, Watcher};
+use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use screenshot_auto::ai::OpenAI;
 use simplelog::*;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -19,7 +20,7 @@ fn is_screenshot_file(path: &Path) -> bool {
         let lowercase = filename.to_lowercase();
         println!("lowercase filename: {:?}", lowercase);
         (lowercase.starts_with("screenshot") || lowercase.contains("screen shot"))
-            && !filename.starts_with("ss-")
+            && !filename.ends_with("-ss")
             && path.extension().map_or(false, |ext| ext == "png")
     } else {
         false
@@ -38,13 +39,14 @@ fn file_is_recent(path: &Path, max_age: Duration) -> bool {
     false
 }
 
-fn process_file(weird_path: &Path) {
+async fn process_file(weird_path: &Path) {
     println!("Processing file: {:?}", weird_path);
     if !is_screenshot_file(weird_path) {
+        println!("file is not a screenshot file: {:?}", weird_path);
         return;
     }
 
-    let path = modify_path(weird_path);
+    let path: PathBuf = modify_path(weird_path);
 
     if !file_is_recent(&path, Duration::from_secs(10)) {
         info!("Skipping old file: {:?}", path);
@@ -53,18 +55,38 @@ fn process_file(weird_path: &Path) {
 
     println!("file is screenshot and recent: {:?}", path);
 
+    let mut new_filename = OpenAI::new().get_name(&path).await;
+    new_filename += ".png";
+    println!("new filename: {:?}", new_filename);
     let parent = path.parent().unwrap_or(Path::new("."));
-    let filename = path.file_name().unwrap().to_str().unwrap();
-    let new_filename = format!("ss-{}", filename);
     let new_path = parent.join(new_filename);
+    println!("new path: {:?}", new_path);
 
     if let Err(e) = fs::copy(path.clone(), &new_path) {
+        println!(
+            "failed to copy file: {:?} -> {:?}, Error: {}",
+            path.clone(),
+            new_path,
+            e
+        );
         error!(
             "Failed to copy file: {:?} -> {:?}, Error: {}",
-            path, new_path, e
+            path.clone(),
+            new_path,
+            e
         );
     } else {
+        println!("created duplicate: {:?}", new_path);
         info!("Created duplicate: {:?}", new_path);
+    }
+
+    //delete path
+    if let Err(e) = fs::remove_file(path.clone()) {
+        println!("failed to delete file: {:?}, Error: {}", path.clone(), e);
+        error!("Failed to delete file: {:?}, Error: {}", path.clone(), e);
+    } else {
+        println!("deleted file: {:?}", path);
+        info!("Deleted file: {:?}", path);
     }
 }
 
@@ -85,7 +107,8 @@ fn get_screenshot_dir() -> PathBuf {
     dirs::desktop_dir().unwrap_or_else(|| PathBuf::from("/Users/Shared"))
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() {
     let log_path = dirs::home_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("Desktop/screenshot-monitor.txt");
@@ -109,8 +132,11 @@ fn main() -> Result<()> {
     println!("Monitoring directory: {:?}", screenshot_dir);
     let (tx, rx) = channel();
 
-    let mut watcher: RecommendedWatcher = Watcher::new(tx, notify::Config::default())?;
-    watcher.watch(&screenshot_dir, RecursiveMode::NonRecursive)?;
+    let mut watcher: RecommendedWatcher =
+        Watcher::new(tx, notify::Config::default()).expect("Failed to create watcher");
+    watcher
+        .watch(&screenshot_dir, RecursiveMode::NonRecursive)
+        .expect("Failed to watch directory");
 
     loop {
         match rx.recv() {
@@ -126,7 +152,7 @@ fn main() -> Result<()> {
                     for path in paths {
                         dbg!(path.is_file());
                         info!("Detected new file: {:?}", path);
-                        process_file(&path);
+                        process_file(&path).await;
                     }
                 }
             }
