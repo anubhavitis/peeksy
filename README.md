@@ -72,4 +72,47 @@ Note: The daemon must be running for Peeksy to monitor and rename your screensho
 ## Installation
 
 1. Clone the repository:
+   ```bash
+   git clone https://github.com/anubhavitis/peeksy.git
+   cd peeksy
    ```
+
+2. Build the project:
+   ```bash
+   cargo build --release
+   ```
+
+3. Install the binary:
+   ```bash
+   sudo cp target/release/peeksy /usr/local/bin/
+   ```
+
+4. Start the daemon:
+   ```bash
+   peeksy start
+   ```
+
+5. Verify the installation:
+   ```bash
+   # Check if the daemon is running
+   peeksy status
+
+   # View your current configuration
+   peeksy current-config
+   ```
+
+Note: Make sure you have Rust installed on your system. If not, install it from [rustup.rs](https://rustup.rs/).
+
+
+# Support & Queries
+
+For any questions, issues, or feature requests, please reach out to:
+- [Email](mailto:ss.lfsgd@gmail.com)
+- GitHub Issues: [Create an issue](https://github.com/anubhavitis/peeksy/issues)
+
+Feel free to:
+- Report bugs
+- Suggest new features
+- Ask for help with configuration
+- Share your experience with Peeksy
+   
