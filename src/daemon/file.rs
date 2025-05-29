@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
-use crate::ai::OpenAI;
+use crate::daemon::ai::OpenAI;
 
 #[derive(Debug, Clone)]
 pub struct SSController {

@@ -18,49 +18,58 @@ Demo video [here](https://x.com/anubhavitis/status/1922303569639702976)
 
 - Rust (latest stable version)
 - OpenAI API key with access to GPT-4 Vision API
-- (Optional) A `.env` file with the following environment variables:
-  - `PEEKSY_OPENAI_API_KEY`: Your OpenAI API key
-  - `PEEKSY_OPENAI_PROMPT_FILE`: Path to your prompt template file (default: `prompt.txt`)
 
-Note: If the `.env` file or required variables are missing, Peeksy will prompt you to enter them during first run. The values will be automatically saved for future use.
+Note: Peeksy will prompt you to enter OpenApi key them during first run. The values will be automatically saved for future use.
 
+## Commands
+
+Peeksy provides several commands to manage the daemon and configuration:
+
+### Daemon Management
+- `start` - Start the Peeksy daemon
+- `stop` - Stop the running Peeksy daemon
+- `restart` - Restart the Peeksy daemon
+- `status` - Check if the Peeksy daemon is running and get its PID
+
+### Configuration Management
+- `current-config` - Display the current configuration in JSON format
+- `view-prompt-file` - Display the contents of the current prompt file
+- `update-api-key <value>` - Update the OpenAI API key
+- `update-prompt-file-path <value>` - Update the path to the prompt template file
+
+### Examples
+```bash
+# Start the Peeksy daemon
+peeksy start
+
+# Check if the daemon is running and get its PID
+peeksy status
+
+# Stop the running daemon
+peeksy stop
+
+# Restart the daemon (useful after configuration changes)
+peeksy restart
+
+# View your current configuration settings
+peeksy current-config
+
+# View the contents of your prompt template file
+peeksy view-prompt-file
+
+# Update your OpenAI API key
+peeksy update-api-key "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Update the path to your prompt template file
+peeksy update-prompt-file-path "/path/to/your/custom-prompt.txt"
+
+# Run the daemon directly (usually not needed, use 'start' instead)
+peeksy daemon
+```
+
+Note: The daemon must be running for Peeksy to monitor and rename your screenshots. Use `peeksy status` to verify the daemon is running.
 
 ## Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/anubhavitis/peeksy.git
-   cd peeksy
    ```
-
-2. Create a `.env` file in the project root:
-   ```bash
-   PEEKSY_OPENAI_API_KEY=your_api_key_here
-   PEEKSY_OPENAI_PROMPT_FILE=prompt.txt
-   ```
-
-3. Build the project:
-   ```bash
-   cargo build --release
-   ```
-
-## Usage
-
-1. Run the compiled binary:
-   ```bash
-   ./target/release/peeksy
-   ```
-
-2. The program will monitor your screenshots directory and automatically rename new images based on their content.
-
-## Filename Format
-
-Output filename is expected to have ```-ss``` as suffix
-
-## Customization
-
-You can customize the naming rules by modifying the `prompt.txt` file. The file contains instructions for the AI model on how to generate appropriate filenames.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. 

@@ -1,3 +1,4 @@
-pub mod ai;
-pub mod file;
-pub mod peeksy;
+pub mod cli;
+pub mod config;
+pub mod daemon;
+pub mod logger;
