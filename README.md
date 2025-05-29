@@ -26,8 +26,8 @@ Demo video [here](https://x.com/anubhavitis/status/1922303569639702976)
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/anubhavitis/screenshot-auto.git
-   cd screenshot-auto
+   git clone https://github.com/anubhavitis/peeksy.git
+   cd peeksy
    ```
 
 2. Create a `.env` file in the project root:
@@ -45,7 +45,7 @@ Demo video [here](https://x.com/anubhavitis/status/1922303569639702976)
 
 1. Run the compiled binary:
    ```bash
-   ./target/release/screenshot-auto
+   ./target/release/peeksy
    ```
 
 2. The program will monitor your screenshots directory and automatically rename new images based on their content.

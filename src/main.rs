@@ -5,7 +5,7 @@ use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use simplelog::*;
 use std::{fs::File, io, path::PathBuf, sync::mpsc::channel};
 
-use screenshot_auto::file::SSController;
+use peeksy::file::SSController;
 
 fn get_screenshot_dir() -> PathBuf {
     use std::process::Command;
@@ -58,7 +58,7 @@ fn setup_logger() {
     .unwrap();
 }
 
-fn setup() -> (String, String) {
+fn setup() -> SSController {
     setup_logger();
     dotenv().ok();
 
@@ -77,26 +77,37 @@ fn setup() -> (String, String) {
         Ok(path) => path,
         Err(e) => {
             error!("Error getting prompt file path: {:?}", e);
-            println!("Please enter the path to your prompt file: ");
+            println!("Please enter the path to your prompt file (default: prompt.txt):");
             let mut input = String::new();
-            io::stdin().read_line(&mut input).unwrap();
-            input.trim().to_string()
+            match io::stdin().read_line(&mut input) {
+                Ok(_) => {
+                    let prompt_path = input.trim().to_string();
+                    if prompt_path.is_empty() {
+                        "prompt.txt".to_string()
+                    } else {
+                        prompt_path
+                    }
+                }
+                Err(_) => "prompt.txt".to_string(),
+            }
         }
     };
+    info!("Using prompt file: {:?}", prompt_file_path);
 
     let prompt = std::fs::read_to_string(&prompt_file_path).expect("Failed to read prompt file");
 
-    (api_key, prompt)
+    SSController::new(api_key, prompt)
 }
 
 #[tokio::main]
 async fn main() {
-    let (api_key, prompt) = setup();
-
-    info!("Starting screenshot monitor at {}", Local::now());
+    info!("Starting Peeksy at {}", Local::now());
 
     let screenshot_dir = get_screenshot_dir();
-    info!("Monitoring directory: {:?}", screenshot_dir);
+    info!(
+        "Peeksy: ScreenShot Monitoring directory: {:?}",
+        screenshot_dir
+    );
 
     let (tx, rx) = channel();
 
@@ -106,8 +117,9 @@ async fn main() {
         .watch(&screenshot_dir, RecursiveMode::NonRecursive)
         .expect("Failed to watch directory");
 
-    let mut ss_controller = SSController::new(api_key, prompt);
+    let ss_controller = setup();
 
+    info!("Setup complete, Peeksy is ready!");
     loop {
         match rx.recv() {
             Ok(event) => {

@@ -7,7 +7,6 @@ Rules:
    - If it is an album cover, include the album title and band or artist name.
    - If it is artwork, mention the style (e.g., oil-painting, digital-art, 3d-render).
    - If it's a poster, include the movie/show/event name.
-   - If it shows a website or app interface, add the suffix "-ui".
 4. Avoid generic terms like "image", "picture", "photo", or "screenshot".
 5. Do not include the file extension (e.g., .jpg or .png) in the output.
 
