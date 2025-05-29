@@ -1,0 +1,14 @@
+Analyze the attached image and generate a short, descriptive filename that clearly reflects its subject, context, and content.
+
+Rules:
+1. Use lowercase letters only. Separate words with hyphens. No spaces or underscores.
+2. Keep the filename between 3 to 8 words. Be concise but meaningful.
+3. Apply intelligent context recognition:
+   - If it is an album cover, include the album title and band or artist name.
+   - If it is artwork, mention the style (e.g., oil-painting, digital-art, 3d-render).
+   - If it's a poster, include the movie/show/event name.
+   - If it shows a website or app interface, add the suffix "-ui".
+4. Avoid generic terms like "image", "picture", "photo", or "screenshot".
+5. Do not include the file extension (e.g., .jpg or .png) in the output.
+
+Return only the final filename string, with no extra explanation or punctuation.
