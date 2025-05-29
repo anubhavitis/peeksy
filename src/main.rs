@@ -1,11 +1,18 @@
-use chrono::Local;
 use dotenv::dotenv;
 use log::{error, info};
-use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use simplelog::*;
-use std::{fs::File, io, path::PathBuf, sync::mpsc::channel};
+use std::{
+    fs::{File, OpenOptions},
+    io::{self, Write},
+    path::{Path, PathBuf},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+};
+use tokio::signal;
 
-use peeksy::file::SSController;
+use peeksy::peeksy;
 
 fn get_screenshot_dir() -> PathBuf {
     use std::process::Command;
@@ -58,88 +65,95 @@ fn setup_logger() {
     .unwrap();
 }
 
-fn setup() -> SSController {
-    setup_logger();
+fn check_permissions() {
+    // check if user has permission to read/write to screenshot directory
+    info!("Peeksy: Checking permissions");
+    info!("Peeksy: Permission check complete");
+}
+
+fn setup_required_env_vars() -> Result<(), Box<dyn std::error::Error>> {
+    // Create .env file if it doesn't exist
+    if !Path::new(".env").exists() {
+        File::create(".env")?;
+        info!("Created .env file");
+    }
     dotenv().ok();
 
-    let api_key = match std::env::var("OPENAI_API_KEY") {
+    // Handle OpenAI API key
+    let api_key = match std::env::var("PEEKSY_OPENAI_API_KEY") {
         Ok(key) => key,
-        Err(e) => {
-            error!("Error getting api key: {:?}", e);
+        Err(_) => {
+            info!("OpenAI API key not found in environment variables");
             println!("Please enter your OpenAI API key: ");
             let mut input = String::new();
-            io::stdin().read_line(&mut input).unwrap();
-            input.trim().to_string()
+            io::stdin().read_line(&mut input)?;
+            let input = input.trim().to_string();
+
+            let mut file = OpenOptions::new().write(true).append(true).open(".env")?;
+            writeln!(file, "PEEKSY_OPENAI_API_KEY={}", input)?;
+            input
         }
     };
 
-    let prompt_file_path = match std::env::var("OPENAI_PROMPT_FILE") {
+    // Handle prompt file path
+    let prompt_path = match std::env::var("PEEKSY_OPENAI_PROMPT_FILE") {
         Ok(path) => path,
-        Err(e) => {
-            error!("Error getting prompt file path: {:?}", e);
-            println!("Please enter the path to your prompt file (default: prompt.txt):");
+        Err(_) => {
+            info!("OpenAI prompt file not found in environment variables");
+            println!("Please enter the path to your prompt file (default: prompt.txt): ");
             let mut input = String::new();
-            match io::stdin().read_line(&mut input) {
-                Ok(_) => {
-                    let prompt_path = input.trim().to_string();
-                    if prompt_path.is_empty() {
-                        "prompt.txt".to_string()
-                    } else {
-                        prompt_path
-                    }
-                }
-                Err(_) => "prompt.txt".to_string(),
-            }
+            io::stdin().read_line(&mut input)?;
+            let input = if input.trim().is_empty() {
+                "prompt.txt".to_string()
+            } else {
+                input.trim().to_string()
+            };
+
+            let mut file = OpenOptions::new().write(true).append(true).open(".env")?;
+            writeln!(file, "PEEKSY_OPENAI_PROMPT_FILE={}", input)?;
+            input
         }
     };
-    info!("Using prompt file: {:?}", prompt_file_path);
 
-    let prompt = std::fs::read_to_string(&prompt_file_path).expect("Failed to read prompt file");
+    // Verify the values were set correctly
+    if api_key.is_empty() || prompt_path.is_empty() {
+        return Err("Required environment variables are empty".into());
+    }
 
-    SSController::new(api_key, prompt)
+    Ok(())
 }
 
 #[tokio::main]
 async fn main() {
-    info!("Starting Peeksy at {}", Local::now());
-
+    setup_logger();
+    setup_required_env_vars().expect("Failed to setup required environment variables");
+    check_permissions();
     let screenshot_dir = get_screenshot_dir();
     info!(
         "Peeksy: ScreenShot Monitoring directory: {:?}",
         screenshot_dir
     );
 
-    let (tx, rx) = channel();
+    let shutdown = Arc::new(AtomicBool::new(false));
+    let shutdown_clone = shutdown.clone();
 
-    let mut watcher: RecommendedWatcher =
-        Watcher::new(tx, notify::Config::default()).expect("Failed to create watcher");
-    watcher
-        .watch(&screenshot_dir, RecursiveMode::NonRecursive)
-        .expect("Failed to watch directory");
+    let peeksy_thread_handler = tokio::spawn(async move {
+        info!("Starting Peeksy thread");
+        peeksy::controller(screenshot_dir, shutdown_clone).await;
+    });
 
-    let ss_controller = setup();
-
-    info!("Setup complete, Peeksy is ready!");
-    loop {
-        match rx.recv() {
-            Ok(event) => {
-                // println!("Received event {:?}", event);
-                if let Ok(Event {
-                    kind: EventKind::Create(_),
-                    paths,
-                    ..
-                }) = event
-                {
-                    for path in paths {
-                        info!("Detected new file: {:?}", path);
-                        let resp = ss_controller.process_file(&path).await;
-                        if let Err(e) = resp {
-                            error!("Error processing file: {:?}", e);
-                        }
-                    }
-                }
-            }
-            Err(e) => error!("Watch error: {:?}", e),
+    // Wait for shutdown signal
+    tokio::select! {
+        _ = signal::ctrl_c() => {
+            info!("Received shutdown signal");
+            shutdown.store(true, Ordering::Relaxed);
+        }
+        _ = peeksy_thread_handler => {
+            info!("Peeksy thread exited unexpectedly");
         }
     }
+
+    // Give the thread a moment to clean up
+    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+    info!("Peeksy: Shutting down");
 }

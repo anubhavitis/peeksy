@@ -18,9 +18,12 @@ Demo video [here](https://x.com/anubhavitis/status/1922303569639702976)
 
 - Rust (latest stable version)
 - OpenAI API key with access to GPT-4 Vision API
-- A `.env` file with the following environment variables:
-  - `OPENAI_API_KEY`: Your OpenAI API key
-  - `OPENAI_PROMPT_FILE`: Path to your prompt template file (default: `prompt.txt`)
+- (Optional) A `.env` file with the following environment variables:
+  - `PEEKSY_OPENAI_API_KEY`: Your OpenAI API key
+  - `PEEKSY_OPENAI_PROMPT_FILE`: Path to your prompt template file (default: `prompt.txt`)
+
+Note: If the `.env` file or required variables are missing, Peeksy will prompt you to enter them during first run. The values will be automatically saved for future use.
+
 
 ## Installation
 
@@ -32,8 +35,8 @@ Demo video [here](https://x.com/anubhavitis/status/1922303569639702976)
 
 2. Create a `.env` file in the project root:
    ```bash
-   OPENAI_API_KEY=your_api_key_here
-   OPENAI_PROMPT_FILE=prompt.txt
+   PEEKSY_OPENAI_API_KEY=your_api_key_here
+   PEEKSY_OPENAI_PROMPT_FILE=prompt.txt
    ```
 
 3. Build the project:
