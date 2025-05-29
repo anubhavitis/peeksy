@@ -1,28 +1,22 @@
-use dotenv::dotenv;
+#![allow(deprecated)]
+use log::info;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use serde_json::json;
 use std::{fs::File, io::Read, path::PathBuf};
 
+#[derive(Debug, Clone)]
 pub struct OpenAI {
     api_key: String,
     prompt: String,
 }
 
 impl OpenAI {
-    pub fn new() -> Self {
-        // Load .env file
-        dotenv().ok();
-
-        let api_key = std::env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
-        let prompt_file_path =
-            std::env::var("OPENAI_PROMPT_FILE").expect("OPENAI_PROMPT_FILE must be set");
-        let prompt_file = std::path::Path::new(&prompt_file_path);
-        let prompt = std::fs::read_to_string(prompt_file).expect("Failed to read prompt file");
+    pub fn new(api_key: String, prompt: String) -> Self {
         Self { api_key, prompt }
     }
 
     pub async fn get_name(&self, image_path: &PathBuf) -> String {
-        dbg!(&image_path.display());
+        info!("Getting name for image: {:?}", image_path.display());
         // Read the image file and base64-encode it
         let mut file = File::open(image_path).expect("Failed to open image file");
         let mut buffer = Vec::new();
@@ -53,7 +47,6 @@ impl OpenAI {
     }
 
     async fn make_ai_request(&self, payload: &serde_json::Value) -> String {
-        println!("making request to openai");
         let response = reqwest::Client::new()
             .post("https://api.openai.com/v1/chat/completions")
             .header(AUTHORIZATION, format!("Bearer {}", self.api_key))
@@ -68,7 +61,6 @@ impl OpenAI {
         let response_json: serde_json::Value =
             serde_json::from_str(&response_text).expect("Failed to parse response");
 
-        dbg!(&response_json);
         let name = response_json["choices"][0]["message"]["content"]
             .as_str()
             .unwrap_or("unknown-name")
