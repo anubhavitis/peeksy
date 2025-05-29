@@ -38,12 +38,6 @@ pub fn setup_logger() {
         WriteLogger::new(LevelFilter::Info, Config::default(), info_writable),
         WriteLogger::new(LevelFilter::Error, Config::default(), error_writable),
         WriteLogger::new(LevelFilter::Debug, Config::default(), debug_writable),
-        TermLogger::new(
-            LevelFilter::Info,
-            Config::default(),
-            TerminalMode::Mixed,
-            ColorChoice::Auto,
-        ),
     ])
     .unwrap();
 }

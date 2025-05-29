@@ -36,7 +36,10 @@ fn get_screenshot_dir() -> PathBuf {
     if let Some(out) = output {
         if out.status.success() {
             let raw = String::from_utf8_lossy(&out.stdout).trim().to_string();
-            return PathBuf::from(raw);
+            let parent = dirs::home_dir().unwrap();
+            // raw is generally like : ~/lorem/ipsum
+            // transforming it into => $home/lorem/ipsum
+            return parent.join(raw[2..].to_string());
         }
     }
 
