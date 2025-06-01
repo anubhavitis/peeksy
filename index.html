@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peeksy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#3B82F6', // Blue for light mode
+                            dark: '#60A5FA'  // Lighter blue for dark mode
+                        },
+                        background: {
+                            dark: '#111827',  // Darker gray for main background
+                            darkSecondary: '#1F2937' // Slightly lighter for secondary elements
+                        },
+                        text: {
+                            dark: '#F3F4F6' // Light gray for text in dark mode
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .scroll-smooth {
+                scroll-behavior: smooth;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 h-full w-64 bg-gray-100 dark:bg-gray-800 p-4 overflow-y-auto hidden md:block">
+        <div class="sticky top-4">
+            <h2 class="text-xl font-bold mb-4">Quick Links</h2>
+            <ul class="space-y-2">
+                <li><a href="#introduction" class="hover:text-primary">Introduction</a></li>
+                <li><a href="#installation" class="hover:text-primary">Installation</a></li>
+                <li><a href="#features" class="hover:text-primary">Features</a></li>
+                <li><a href="#usage" class="hover:text-primary">Usage</a></li>
+                <li><a href="#configuration" class="hover:text-primary">Configuration</a></li>
+                <li><a href="#api" class="hover:text-primary">API Reference</a></li>
+                <li><a href="#support" class="hover:text-primary">Support & Queries</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div class="md:hidden fixed top-0 left-0 right-0 bg-gray-100 dark:bg-gray-800 p-4 z-50">
+        <select onchange="window.location.href=this.value" class="w-full p-2 rounded bg-white dark:bg-gray-700">
+            <option value="#introduction">Introduction</option>
+            <option value="#installation">Installation</option>
+            <option value="#features">Features</option>
+            <option value="#usage">Usage</option>
+            <option value="#configuration">Configuration</option>
+            <option value="#api">API Reference</option>
+            <option value="#support">Support & Queries</option>
+        </select>
+    </div>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 p-8 pt-16 md:pt-8">
+        <!-- Theme Toggle -->
+        <button onclick="toggleTheme()" class="fixed top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+            <svg class="w-6 h-6 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707">
+                </path>
+            </svg>
+        </button>
+
+        <!-- Introduction -->
+        <section id="introduction" class="mb-16">
+            <h1 class="text-4xl font-bold mb-6">Peeksy Documentation</h1>
+            <p class="text-lg mb-4">A Rust-based tool that automatically renames screenshots and images using OpenAI's
+                GPT-4 Vision API. The tool analyzes image content and generates descriptive, meaningful filenames
+                following a consistent naming convention.</p>
+            <p class="text-lg mb-4">Earlier called as Screenshot-Auto</p>
+            <a href="https://x.com/anubhavitis/status/1922303569639702976" class="text-primary hover:underline">Watch
+                Demo Video</a>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">Installation</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Requirements</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Rust (latest stable version)</li>
+                        <li>OpenAI API key with access to GPT-4 Vision API</li>
+                    </ul>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Note: Peeksy will prompt you to enter
+                        OpenApi key during first run. The values will be automatically saved for future use.</p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Installation Steps</h3>
+                    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                        <pre class="text-sm"><code># Clone the repository
+git clone https://github.com/anubhavitis/peeksy.git
+cd peeksy
+
+# Build the project
+cargo build --release
+
+# Install the binary
+sudo cp target/release/peeksy /usr/local/bin/
+
+# Start the daemon
+peeksy start
+
+# Verify the installation
+peeksy status
+peeksy current-config</code></pre>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Note: Make sure you have Rust installed on
+                        your system. If not, install it from <a href="https://rustup.rs"
+                            class="text-primary hover:underline">rustup.rs</a>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section id="features" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">Features</h2>
+            <ul class="list-disc list-inside space-y-2">
+                <li>Automatic image analysis using GPT-4 Vision API</li>
+                <li>Intelligent context recognition (screenshots, album covers, artwork, posters, UI elements)</li>
+                <li>Consistent filename formatting (lowercase, hyphen-separated)</li>
+                <li>Real-time file monitoring and automatic renaming</li>
+                <li>Configurable naming rules through prompt template</li>
+            </ul>
+        </section>
+
+        <!-- Usage -->
+        <section id="usage" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">How to Use</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Basic Usage</h3>
+                    <ol class="list-decimal list-inside space-y-2">
+                        <li>Start the Service
+                            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg ml-6 mt-2">
+                                <pre class="text-sm"><code>peeksy start</code></pre>
+                            </div>
+                        </li>
+                        <li>Take Screenshots using your system's screenshot shortcut (⌘⇧3 or ⌘⇧4 on macOS)</li>
+                        <li>Watch the Magic - Peeksy will automatically detect, analyze, and rename your screenshots
+                        </li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Customization</h3>
+                    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                        <pre class="text-sm"><code># View your current prompt template
+peeksy view-prompt-file
+
+# Update the prompt template
+peeksy update-prompt-file-path "path/to/your/custom-prompt.txt"</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">Commands</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Daemon Management</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><code>start</code> - Start the Peeksy daemon</li>
+                        <li><code>stop</code> - Stop the running Peeksy daemon</li>
+                        <li><code>restart</code> - Restart the Peeksy daemon</li>
+                        <li><code>status</code> - Check if the Peeksy daemon is running and get its PID</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Configuration Management</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><code>current-config</code> - Display the current configuration in JSON format</li>
+                        <li><code>view-prompt-file</code> - Display the contents of the current prompt file</li>
+                        <li><code>update-api-key &lt;value&gt;</code> - Update the OpenAI API key</li>
+                        <li><code>update-prompt-file-path &lt;value&gt;</code> - Update the path to the prompt template
+                            file</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Reference -->
+        <section id="api" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">Examples</h2>
+            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                <pre class="text-sm"><code># Start the Peeksy daemon
+peeksy start
+
+# Check if the daemon is running and get its PID
+peeksy status
+
+# Stop the running daemon
+peeksy stop
+
+# Restart the daemon (useful after configuration changes)
+peeksy restart
+
+# View your current configuration settings
+peeksy current-config
+
+# View the contents of your prompt template file
+peeksy view-prompt-file
+
+# Update your OpenAI API key
+peeksy update-api-key "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Update the path to your prompt template file
+peeksy update-prompt-file-path "/path/to/your/custom-prompt.txt"
+
+# Run the daemon directly (usually not needed, use 'start' instead)
+peeksy daemon</code></pre>
+            </div>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Note: The daemon must be running for Peeksy to
+                monitor and rename your screenshots. Use <code>peeksy status</code> to verify the daemon is running.</p>
+        </section>
+
+        <!-- Contributing -->
+        <section id="support" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">Support & Queries</h2>
+            <p class="mb-4">For any questions, issues, or feature requests, please reach out to:</p>
+            <ul class="list-disc list-inside space-y-2">
+                <li><a href="mailto:ss.lfsgd@gmail.com" class="text-primary hover:underline">Email</a></li>
+                <li><a href="https://github.com/anubhavitis/peeksy/issues" class="text-primary hover:underline">GitHub
+                        Issues</a></li>
+            </ul>
+            <p class="mt-4">Feel free to:</p>
+            <ul class="list-disc list-inside space-y-2">
+                <li>Report bugs</li>
+                <li>Suggest new features</li>
+                <li>Ask for help with configuration</li>
+                <li>Share your experience with Peeksy</li>
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Check for system preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
