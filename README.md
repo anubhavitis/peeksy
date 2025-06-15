@@ -17,44 +17,51 @@ A Rust-based tool that automatically renames screenshots and images using OpenAI
 
 ## Requirements
 
-- Rust (latest stable version)
 - OpenAI API key with access to GPT-4 Vision API
 
 Note: Peeksy will prompt you to enter OpenApi key them during first run. The values will be automatically saved for future use.
 
 ## Installation
+```bash
+brew tap anubhavitis/peeksy
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/anubhavitis/peeksy.git
-   cd peeksy
-   ```
+brew install peeksy
 
-2. Build the project:
-   ```bash
-   cargo build --release
-   ```
+peeksy start
+```
 
-3. Install the binary:
-   ```bash
-   sudo cp target/release/peeksy /usr/local/bin/
-   ```
 
-4. Start the daemon:
-   ```bash
-   peeksy start
-   ```
+### Examples
+```bash
+# Start the Peeksy daemon
+peeksy start
 
-5. Verify the installation:
-   ```bash
-   # Check if the daemon is running
-   peeksy status
+# Check if the daemon is running and get its PID
+peeksy status
 
-   # View your current configuration
-   peeksy current-config
-   ```
+# Stop the running daemon
+peeksy stop
 
-Note: Make sure you have Rust installed on your system. If not, install it from [rustup.rs](https://rustup.rs/).
+# Restart the daemon (useful after configuration changes)
+peeksy restart
+
+# View your current configuration settings
+peeksy current-config
+
+# View the contents of your prompt template file
+peeksy view-prompt-file
+
+# Update your OpenAI API key
+peeksy update-api-key "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Update the path to your prompt template file
+peeksy update-prompt-file-path "/path/to/your/custom-prompt.txt"
+
+# Run the daemon directly (usually not needed, use 'start' instead)
+peeksy daemon
+```
+
+Note: The daemon must be running for Peeksy to monitor and rename your screenshots. Use `peeksy status` to verify the daemon is running.
 
 ## How to Use
 
@@ -101,37 +108,39 @@ Peeksy provides several commands to manage the daemon and configuration:
 - `update-api-key <value>` - Update the OpenAI API key
 - `update-prompt-file-path <value>` - Update the path to the prompt template file
 
-### Examples
-```bash
-# Start the Peeksy daemon
-peeksy start
+## Building in your machine
 
-# Check if the daemon is running and get its PID
-peeksy status
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/anubhavitis/peeksy.git
+   cd peeksy
+   ```
 
-# Stop the running daemon
-peeksy stop
+2. Build the project:
+   ```bash
+   cargo build --release
+   ```
 
-# Restart the daemon (useful after configuration changes)
-peeksy restart
+3. Install the binary:
+   ```bash
+   sudo cp target/release/peeksy /usr/local/bin/
+   ```
 
-# View your current configuration settings
-peeksy current-config
+4. Start the daemon:
+   ```bash
+   peeksy start
+   ```
 
-# View the contents of your prompt template file
-peeksy view-prompt-file
+5. Verify the installation:
+   ```bash
+   # Check if the daemon is running
+   peeksy status
 
-# Update your OpenAI API key
-peeksy update-api-key "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   # View your current configuration
+   peeksy current-config
+   ```
 
-# Update the path to your prompt template file
-peeksy update-prompt-file-path "/path/to/your/custom-prompt.txt"
-
-# Run the daemon directly (usually not needed, use 'start' instead)
-peeksy daemon
-```
-
-Note: The daemon must be running for Peeksy to monitor and rename your screenshots. Use `peeksy status` to verify the daemon is running.
+Note: Make sure you have Rust installed on your system. If not, install it from [rustup.rs](https://rustup.rs/).
 
 # Support & Queries
 
@@ -149,4 +158,4 @@ Feel free to:
 
 A heartfelt thank you to:
 
-[navedux](https://naved.xyz) for creating the beautiful Peeksy logo and brand identity
+[navedux](https://naved.xyz) for creating the beautiful Peeksy logo and identity
