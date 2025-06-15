@@ -145,3 +145,8 @@ Feel free to:
 - Ask for help with configuration
 - Share your experience with Peeksy
    
+# Special Thanks
+
+A heartfelt thank you to:
+
+[navedux](https://naved.xyz) for creating the beautiful Peeksy logo and brand identity
