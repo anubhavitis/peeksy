@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     config::{self},
-    daemon::{pid, runner},
+    daemon::{peeksy, pid, runner},
 };
 
 #[derive(Parser, Debug)]
@@ -51,6 +51,8 @@ impl Args {
     }
 }
 
+const NOTE: &str = "⚠️ Note: If you have updated the screenshot directory, you need to restart the daemon.\n Use `peeksy restart` to restart the daemon.";
+
 async fn is_daemon_running() -> (bool, u32) {
     let pid = pid::get_pid();
     match pid {
@@ -68,7 +70,7 @@ async fn is_daemon_running() -> (bool, u32) {
 async fn status_daemon() {
     let (is_running, pid) = is_daemon_running().await;
     if is_running {
-        println!("Peeksy daemon is running with PID {}", pid);
+        println!("Peeksy daemon is running with PID {}\n\n{}", pid, NOTE);
     } else {
         println!("Peeksy daemon is not running");
     }
@@ -111,11 +113,15 @@ async fn stop_daemon() {
 async fn start_daemon() {
     let (is_running, pid) = is_daemon_running().await;
     if is_running {
-        println!("Peeksy daemon is already running with PID {}", pid);
+        println!(
+            "Peeksy daemon is already running with PID {}\n\n{}",
+            pid, NOTE
+        );
         return;
     }
 
     let current_exe = std::env::current_exe().expect("Failed to get current executable path");
+    let screenshot_dir = peeksy::get_screenshot_dir();
 
     // Spawn daemon as separate process
     match std::process::Command::new(&current_exe)
@@ -128,7 +134,11 @@ async fn start_daemon() {
 
             let (is_running, pid) = is_daemon_running().await;
             if is_running {
-                println!("✅ Daemon started successfully with PID {}", pid);
+                println!(
+                    "✅ Daemon started successfully with PID {} at screenshot directory: {}",
+                    pid,
+                    screenshot_dir.display()
+                );
             } else {
                 println!("❌ Failed to start daemon");
             }

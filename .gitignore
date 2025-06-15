@@ -1,3 +1,4 @@
 /target
 *.env
 .vscode/launch.json
+.DS_Store

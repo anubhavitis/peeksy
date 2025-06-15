@@ -10,9 +10,22 @@ pub fn setup_config() -> Result<(), Box<dyn std::error::Error>> {
     let path: std::path::PathBuf = dirs::config_dir().unwrap().join("peeksy");
     {
         // saving default prompt file to config directory
-        let prompt_file =
-            std::fs::read_to_string("prompt.txt").expect("Failed to read prompt file");
-        std::fs::write(path.join("prompt.txt"), prompt_file).expect("Failed to write prompt file");
+        let default_prompt = r#"
+        Analyze the attached image and generate a short, descriptive filename that clearly reflects its subject, context, and content.
+        Rules:
+            1. Use lowercase letters only. Separate words with hyphens. No spaces or underscores.
+            2. Keep the filename between 3 to 8 words. Be concise but meaningful.
+            3. Apply intelligent context recognition:
+                - If it is an album cover, include the album title and band or artist name.
+                - If it is artwork, mention the style (e.g., oil-painting, digital-art, 3d-render).
+                - If it's a poster, include the movie/show/event name.
+            4. Avoid generic terms like "image", "picture", "photo", or "screenshot".
+            5. Do not include the file extension (e.g., .jpg or .png) in the output.
+        
+        Return only the final filename string, with no extra explanation or punctuation."#;
+
+        std::fs::write(path.join("prompt.txt"), default_prompt)
+            .expect("Failed to write prompt file");
     }
 
     let mut updated = false;

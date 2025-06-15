@@ -26,7 +26,7 @@ fn get_controller() -> Result<SSController, String> {
     Ok(SSController::new(openai_api_key, prompt))
 }
 
-fn get_screenshot_dir() -> PathBuf {
+pub fn get_screenshot_dir() -> PathBuf {
     use std::process::Command;
     let output = Command::new("defaults")
         .args(["read", "com.apple.screencapture", "location"])
