@@ -1,4 +1,4 @@
-<img src="assets/OP 1.svg" width="150" height="150" alt="Peeksy Logo" />
+<img src="assets/peeksy.png" width="150" height="150" alt="Peeksy Logo" />
 
 # Peeksy
 
