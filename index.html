@@ -2,38 +2,38 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Peeksy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
+            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
                         primary: {
-                            light: '#3B82F6', // Blue for light mode
-                            dark: '#60A5FA'  // Lighter blue for dark mode
+                            light: "#3B82F6", // Blue for light mode
+                            dark: "#60A5FA", // Lighter blue for dark mode
                         },
                         background: {
-                            dark: '#111827',  // Darker gray for main background
-                            darkSecondary: '#1F2937' // Slightly lighter for secondary elements
+                            dark: "#111827", // Darker gray for main background
+                            darkSecondary: "#1F2937", // Slightly lighter for secondary elements
                         },
                         text: {
-                            dark: '#F3F4F6' // Light gray for text in dark mode
-                        }
-                    }
-                }
-            }
-        }
+                            dark: "#F3F4F6", // Light gray for text in dark mode
+                        },
+                    },
+                },
+            },
+        };
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .scroll-smooth {
-                scroll-behavior: smooth;
-            }
+        .scroll-smooth {
+          scroll-behavior: smooth;
         }
+      }
     </style>
 </head>
 
@@ -41,15 +41,26 @@
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 h-full w-64 bg-gray-100 dark:bg-gray-800 p-4 overflow-y-auto hidden md:block">
         <div class="sticky top-4">
+            <div class="flex justify-center mb-6">
+                <img src="assets/peeksy.png" width="100" height="100" alt="Peeksy Logo" class="rounded-lg" />
+            </div>
             <h2 class="text-xl font-bold mb-4">Quick Links</h2>
             <ul class="space-y-2">
-                <li><a href="#introduction" class="hover:text-primary">Introduction</a></li>
-                <li><a href="#installation" class="hover:text-primary">Installation</a></li>
+                <li>
+                    <a href="#introduction" class="hover:text-primary">Introduction</a>
+                </li>
+                <li>
+                    <a href="#installation" class="hover:text-primary">Installation</a>
+                </li>
                 <li><a href="#features" class="hover:text-primary">Features</a></li>
                 <li><a href="#usage" class="hover:text-primary">Usage</a></li>
-                <li><a href="#configuration" class="hover:text-primary">Configuration</a></li>
+                <li>
+                    <a href="#configuration" class="hover:text-primary">Configuration</a>
+                </li>
                 <li><a href="#api" class="hover:text-primary">API Reference</a></li>
-                <li><a href="#support" class="hover:text-primary">Support & Queries</a></li>
+                <li>
+                    <a href="#support" class="hover:text-primary">Support & Queries</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -85,12 +96,23 @@
         <!-- Introduction -->
         <section id="introduction" class="mb-16">
             <h1 class="text-4xl font-bold mb-6">Peeksy Documentation</h1>
-            <p class="text-lg mb-4">A Rust-based tool that automatically renames screenshots and images using OpenAI's
-                GPT-4 Vision API. The tool analyzes image content and generates descriptive, meaningful filenames
-                following a consistent naming convention.</p>
-            <p class="text-lg mb-4">Earlier called as Screenshot-Auto</p>
-            <a href="https://x.com/anubhavitis/status/1922303569639702976" class="text-primary hover:underline">Watch
-                Demo Video</a>
+            <p class="text-lg mb-4">
+                A Rust-based tool that automatically renames screenshots and images
+                using OpenAI's GPT-4 Vision API. The tool analyzes image content and
+                generates descriptive, meaningful filenames following a consistent
+                naming convention.
+            </p>
+            <a href="https://x.com/anubhavitis/status/1922303569639702976"
+                class="text-blue-600 underline font-bold text-lg flex items-center gap-2 hover:text-blue-800 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Watch Demo Video
+            </a>
         </section>
 
         <!-- Installation -->
@@ -100,15 +122,35 @@
                 <div>
                     <h3 class="text-xl font-semibold mb-2">Requirements</h3>
                     <ul class="list-disc list-inside space-y-2">
-                        <li>Rust (latest stable version)</li>
                         <li>OpenAI API key with access to GPT-4 Vision API</li>
                     </ul>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Note: Peeksy will prompt you to enter
-                        OpenApi key during first run. The values will be automatically saved for future use.</p>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Note: Peeksy will prompt you to enter OpenApi key during first
+                        run. The values will be automatically saved for future use.
+                    </p>
                 </div>
 
                 <div>
-                    <h3 class="text-xl font-semibold mb-2">Installation Steps</h3>
+                    <h3 class="text-xl font-semibold mb-2">
+                        Quick Installation (Recommended)
+                    </h3>
+                    <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                        <pre class="text-sm"><code># Install using Homebrew
+brew tap anubhavitis/peeksy
+brew install peeksy
+
+# Start the daemon
+peeksy start</code></pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Manual Installation</h3>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Note: Make sure you have Rust installed on your system. If not,
+                        install it from
+                        <a href="https://rustup.rs" class="text-blue-600 underline">rustup.rs</a>.
+                    </p>
                     <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
                         <pre class="text-sm"><code># Clone the repository
 git clone https://github.com/anubhavitis/peeksy.git
@@ -127,9 +169,6 @@ peeksy start
 peeksy status
 peeksy current-config</code></pre>
                     </div>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Note: Make sure you have Rust installed on
-                        your system. If not, install it from <a href="https://rustup.rs"
-                            class="text-primary hover:underline">rustup.rs</a>.</p>
                 </div>
             </div>
         </section>
@@ -139,7 +178,10 @@ peeksy current-config</code></pre>
             <h2 class="text-3xl font-bold mb-4">Features</h2>
             <ul class="list-disc list-inside space-y-2">
                 <li>Automatic image analysis using GPT-4 Vision API</li>
-                <li>Intelligent context recognition (screenshots, album covers, artwork, posters, UI elements)</li>
+                <li>
+                    Intelligent context recognition (screenshots, album covers, artwork,
+                    posters, UI elements)
+                </li>
                 <li>Consistent filename formatting (lowercase, hyphen-separated)</li>
                 <li>Real-time file monitoring and automatic renaming</li>
                 <li>Configurable naming rules through prompt template</li>
@@ -153,13 +195,19 @@ peeksy current-config</code></pre>
                 <div>
                     <h3 class="text-xl font-semibold mb-2">Basic Usage</h3>
                     <ol class="list-decimal list-inside space-y-2">
-                        <li>Start the Service
+                        <li>
+                            Start the Service
                             <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg ml-6 mt-2">
                                 <pre class="text-sm"><code>peeksy start</code></pre>
                             </div>
                         </li>
-                        <li>Take Screenshots using your system's screenshot shortcut (⌘⇧3 or ⌘⇧4 on macOS)</li>
-                        <li>Watch the Magic - Peeksy will automatically detect, analyze, and rename your screenshots
+                        <li>
+                            Take Screenshots using your system's screenshot shortcut (⌘⇧3 or
+                            ⌘⇧4 on macOS)
+                        </li>
+                        <li>
+                            Watch the Magic - Peeksy will automatically detect, analyze, and
+                            rename your screenshots
                         </li>
                     </ol>
                 </div>
@@ -187,18 +235,32 @@ peeksy update-prompt-file-path "path/to/your/custom-prompt.txt"</code></pre>
                         <li><code>start</code> - Start the Peeksy daemon</li>
                         <li><code>stop</code> - Stop the running Peeksy daemon</li>
                         <li><code>restart</code> - Restart the Peeksy daemon</li>
-                        <li><code>status</code> - Check if the Peeksy daemon is running and get its PID</li>
+                        <li>
+                            <code>status</code> - Check if the Peeksy daemon is running and
+                            get its PID
+                        </li>
                     </ul>
                 </div>
 
                 <div>
                     <h3 class="text-xl font-semibold mb-2">Configuration Management</h3>
                     <ul class="list-disc list-inside space-y-2">
-                        <li><code>current-config</code> - Display the current configuration in JSON format</li>
-                        <li><code>view-prompt-file</code> - Display the contents of the current prompt file</li>
-                        <li><code>update-api-key &lt;value&gt;</code> - Update the OpenAI API key</li>
-                        <li><code>update-prompt-file-path &lt;value&gt;</code> - Update the path to the prompt template
-                            file</li>
+                        <li>
+                            <code>current-config</code> - Display the current configuration
+                            in JSON format
+                        </li>
+                        <li>
+                            <code>view-prompt-file</code> - Display the contents of the
+                            current prompt file
+                        </li>
+                        <li>
+                            <code>update-api-key &lt;value&gt;</code> - Update the OpenAI
+                            API key
+                        </li>
+                        <li>
+                            <code>update-prompt-file-path &lt;value&gt;</code> - Update the
+                            path to the prompt template file
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -235,18 +297,27 @@ peeksy update-prompt-file-path "/path/to/your/custom-prompt.txt"
 # Run the daemon directly (usually not needed, use 'start' instead)
 peeksy daemon</code></pre>
             </div>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Note: The daemon must be running for Peeksy to
-                monitor and rename your screenshots. Use <code>peeksy status</code> to verify the daemon is running.</p>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Note: The daemon must be running for Peeksy to monitor and rename your
+                screenshots. Use <code>peeksy status</code> to verify the daemon is
+                running.
+            </p>
         </section>
 
         <!-- Contributing -->
         <section id="support" class="mb-16">
             <h2 class="text-3xl font-bold mb-4">Support & Queries</h2>
-            <p class="mb-4">For any questions, issues, or feature requests, please reach out to:</p>
+            <p class="mb-4">
+                For any questions, issues, or feature requests, please reach out to:
+            </p>
             <ul class="list-disc list-inside space-y-2">
-                <li><a href="mailto:ss.lfsgd@gmail.com" class="text-primary hover:underline">Email</a></li>
-                <li><a href="https://github.com/anubhavitis/peeksy/issues" class="text-primary hover:underline">GitHub
-                        Issues</a></li>
+                <li>
+                    <a href="mailto:ss.lfsgd@gmail.com" class="text-blue-600 underline">Email</a>
+                </li>
+                <li>
+                    <a href="https://github.com/anubhavitis/peeksy/issues" class="text-blue-600 underline">GitHub
+                        Issues</a>
+                </li>
             </ul>
             <p class="mt-4">Feel free to:</p>
             <ul class="list-disc list-inside space-y-2">
@@ -256,25 +327,43 @@ peeksy daemon</code></pre>
                 <li>Share your experience with Peeksy</li>
             </ul>
         </section>
+
+        <!-- Special Thanks -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-4">Special Thanks</h2>
+            <p class="mb-4">A heartfelt thank you to:</p>
+            <ul class="list-disc list-inside space-y-2">
+                <li>
+                    <a href="https://naved.xyz" class="text-blue-600 underline">navedux</a>
+                    for creating the beautiful Peeksy logo and identity
+                </li>
+            </ul>
+        </section>
     </main>
 
     <script>
         // Theme toggle functionality
         function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
+            document.documentElement.classList.toggle("dark");
+            // Save preference to localStorage
+            const isDark = document.documentElement.classList.contains("dark");
+            localStorage.setItem("theme", isDark ? "dark" : "light");
         }
 
-        // Check for system preference
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
+        // Check for saved theme preference or use light as default
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
         }
 
         // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener("click", function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
+                document.querySelector(this.getAttribute("href")).scrollIntoView({
+                    behavior: "smooth",
                 });
             });
         });
