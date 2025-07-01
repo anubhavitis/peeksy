@@ -52,23 +52,31 @@ pub fn setup_logger() {
     let error_writable = get_error_writable(log_path.clone());
     let debug_writable = get_debug_writable(log_path.clone());
 
+    let mut loggers: Vec<Box<dyn SharedLogger>> = vec![
+        TermLogger::new(
+            LevelFilter::Debug,
+            Config::default(),
+            TerminalMode::Mixed,
+            ColorChoice::Auto,
+        ),
+        WriteLogger::new(LevelFilter::Error, Config::default(), error_writable),
+    ];
+
     // Check if we're in release mode (debug_assertions is false in release builds)
     let is_debug = cfg!(debug_assertions);
-    if !is_debug {
-        // Release mode: only error logs
-        CombinedLogger::init(vec![WriteLogger::new(
-            LevelFilter::Error,
-            Config::default(),
-            error_writable,
-        )])
-        .unwrap();
-    } else {
+    if is_debug {
         // Debug mode: all logs (info, error, debug)
-        CombinedLogger::init(vec![
-            WriteLogger::new(LevelFilter::Info, Config::default(), info_writable),
-            WriteLogger::new(LevelFilter::Error, Config::default(), error_writable),
-            WriteLogger::new(LevelFilter::Debug, Config::default(), debug_writable),
-        ])
-        .unwrap();
+        loggers.push(WriteLogger::new(
+            LevelFilter::Info,
+            Config::default(),
+            info_writable,
+        ));
+        loggers.push(WriteLogger::new(
+            LevelFilter::Debug,
+            Config::default(),
+            debug_writable,
+        ));
     }
+
+    CombinedLogger::init(loggers).unwrap();
 }
