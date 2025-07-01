@@ -54,7 +54,7 @@ pub fn setup_logger() {
 
     let mut loggers: Vec<Box<dyn SharedLogger>> = vec![
         TermLogger::new(
-            LevelFilter::Debug,
+            LevelFilter::Info,
             Config::default(),
             TerminalMode::Mixed,
             ColorChoice::Auto,

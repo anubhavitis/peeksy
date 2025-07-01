@@ -8,11 +8,16 @@ use std::{fs::File, io::Read, path::PathBuf};
 pub struct OpenAI {
     api_key: String,
     prompt: String,
+    model: String,
 }
 
 impl OpenAI {
-    pub fn new(api_key: String, prompt: String) -> Self {
-        Self { api_key, prompt }
+    pub fn new(api_key: String, prompt: String, model: String) -> Self {
+        Self {
+            api_key,
+            prompt,
+            model,
+        }
     }
 
     pub async fn get_name(&self, image_path: &PathBuf) -> String {
@@ -26,7 +31,7 @@ impl OpenAI {
 
         // Create the JSON payload
         let payload = json!({
-            "model": "gpt-4.1",
+            "model": self.model,
             "messages": [{
                 "role": "user",
                 "content": [
@@ -61,6 +66,7 @@ impl OpenAI {
         let response_json: serde_json::Value =
             serde_json::from_str(&response_text).expect("Failed to parse response");
 
+        dbg!(&response_json);
         let name = response_json["choices"][0]["message"]["content"]
             .as_str()
             .unwrap_or("unknown-name")

@@ -1,15 +1,18 @@
 use crate::config;
 
-pub async fn edit_config(config: &mut config::config::Config) {
+pub async fn edit_config() {
+    let mut config = config::config::Config::fetch().expect("Failed to fetch config");
     config.edit_config().expect("Failed to edit config");
     println!("Config edited successfully");
 }
 
-pub async fn current_config(config: &config::config::Config) {
+pub async fn current_config() {
+    let config = config::config::Config::fetch().expect("Failed to fetch config");
     println!("{}", serde_json::to_string_pretty(&config).unwrap());
 }
 
-pub async fn view_prompt_file(config: &config::config::Config) {
+pub async fn view_prompt_file() {
+    let config = config::config::Config::fetch().expect("Failed to fetch config");
     let prompt_file = config.get_openai_prompt_file_path();
     match prompt_file {
         Some(prompt_file) => {

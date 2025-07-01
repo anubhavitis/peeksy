@@ -9,6 +9,7 @@ use crate::config::setup;
 pub struct Config {
     pub openai_api_key: Option<String>,
     pub openai_prompt_file_path: Option<String>,
+    pub openai_model: Option<String>,
 }
 
 impl Config {
@@ -26,7 +27,37 @@ impl Config {
         Ok(())
     }
 
-    fn openai_api_key_exists(&self) -> bool {
+    pub fn ready(&self) -> bool {
+        if !self.openai_api_key_exists() {
+            let err = "[Peeksy Ready] OpenAI API key is not set";
+            error!("{}", err);
+            return false;
+        }
+
+        if !self.openai_prompt_file_path_exists() {
+            let err = "[Peeksy Ready] OpenAI prompt file path is not set";
+            error!("{}", err);
+            return false;
+        }
+
+        if !self.openai_model_exists() {
+            let err = "[Peeksy Ready] OpenAI model is not set";
+            error!("{}", err);
+            return false;
+        }
+
+        true
+    }
+
+    pub fn openai_model_exists(&self) -> bool {
+        if let Some(model) = self.openai_model.as_ref() {
+            !model.is_empty()
+        } else {
+            false
+        }
+    }
+
+    pub fn openai_api_key_exists(&self) -> bool {
         if let Some(key) = self.openai_api_key.as_ref() {
             !key.is_empty()
         } else {
@@ -34,7 +65,7 @@ impl Config {
         }
     }
 
-    fn openai_prompt_file_path_exists(&self) -> bool {
+    pub fn openai_prompt_file_path_exists(&self) -> bool {
         if let Some(path) = self.openai_prompt_file_path.as_ref() {
             !path.is_empty()
         } else {
@@ -46,8 +77,13 @@ impl Config {
         self.openai_api_key.clone()
     }
 
+
     pub fn get_openai_prompt_file_path(&self) -> Option<String> {
         self.openai_prompt_file_path.clone()
+    }
+
+    pub fn get_openai_model(&self) -> Option<String> {
+        self.openai_model.clone()
     }
 
     // sets the api key and prompt file path
@@ -65,6 +101,13 @@ impl Config {
         let new_path = self.get_openai_prompt_file_path_from_user()?;
         if new_path.is_some() {
             self.openai_prompt_file_path = new_path;
+            updated = true;
+        }
+
+        // Handle model if empty or not set
+        let new_model = self.get_openai_model_from_user()?;
+        if new_model.is_some() {
+            self.openai_model = new_model;
             updated = true;
         }
 
@@ -105,6 +148,26 @@ impl Config {
             );
         } else {
             println!("Please enter your OpenAI prompt file path: ");
+        }
+
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .map_err(|e| anyhow::anyhow!("Error reading input: {}", e))?;
+
+        let input = input.trim().to_string();
+        if input.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(input))
+    }
+
+    fn get_openai_model_from_user(&self) -> Result<Option<String>, anyhow::Error> {
+        if self.openai_model_exists() {
+            let model = self.get_openai_model().unwrap();
+            println!("Please enter your OpenAI model (press enter to skip and keep using the existing model: {}): ", model);
+        } else {
+            println!("Please enter your OpenAI model: ");
         }
 
         let mut input = String::new();
