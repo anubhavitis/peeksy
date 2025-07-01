@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
-use crate::daemon::ai::OpenAI;
+use crate::ai::ai::OpenAI;
 
 #[derive(Debug, Clone)]
 pub struct SSController {
@@ -10,12 +10,13 @@ pub struct SSController {
 }
 
 impl SSController {
-    pub fn new(key: String, prompt: String) -> Self {
-        let ai = OpenAI::new(key, prompt);
+    pub fn new(ai: OpenAI) -> Self {
         Self { ai }
     }
 
-    fn modify_path(&self, path: &PathBuf) -> PathBuf {
+    fn modify_ss_path(&self, path: &PathBuf) -> PathBuf {
+        // initially the path of the file starts with .<file_name>
+        // we need to remove the . from the file name
         let filename = path.file_name().unwrap().to_str().unwrap()[1..].to_string();
         let parent = path.parent().unwrap_or(Path::new("."));
         parent.join(filename)
@@ -51,12 +52,12 @@ impl SSController {
         Ok(())
     }
 
-    pub async fn process_file(&self, path: &PathBuf) -> Result<(), String> {
+    pub async fn process_ss(&self, path: &PathBuf) -> Result<(), String> {
         if !self.is_screenshot_file(path) {
             return Err(format!("file is not screenshot or not recent: {:?}", path));
         }
 
-        let path = self.modify_path(path);
+        let path = self.modify_ss_path(path);
 
         if !self.is_recent(&path, Duration::from_secs(30)) {
             return Err(format!("Skipping old file: {:?}", path));

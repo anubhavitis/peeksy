@@ -1,8 +1,15 @@
+use std::sync::{Arc, Mutex};
+
 use clap::{Parser, Subcommand};
 
 use crate::{
-    config::{self},
-    daemon::{peeksy, pid, runner},
+    cli::handlers::{
+        config::{current_config, edit_config, view_prompt_file},
+        log::{error_logs, info_logs},
+        status::{is_daemon_running, restart_daemon, start_daemon, status_daemon, stop_daemon},
+    },
+    config,
+    daemon::runner,
 };
 
 #[derive(Parser, Debug)]
@@ -14,137 +21,56 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
+    // status handlers
     Start,
     Stop,
     Restart,
     Status,
+
+    // config handlers
     CurrentConfig,
     ViewPromptFile,
-    UpdateApiKey {
-        value: String,
-    },
-    UpdatePromptFilePath {
-        value: String,
-    },
+    EditConfig,
 
+    // utils
+    ProcessExistingScreenshots,
+    Rename {
+        file_path: String,
+    },
     #[command(name = "daemon")]
     Daemon,
+
+    // log handlers
     InfoLogs,
     ErrorLogs,
 }
 
 impl Args {
     pub async fn execute(&self) {
+        // init requirements
+        let config = config::config::Config::fetch().expect("Failed to fetch config");
+
+        // execute command
         match &self.command {
+            // daemon handlers
             Commands::Start => start_daemon().await,
             Commands::Stop => stop_daemon().await,
             Commands::Restart => restart_daemon().await,
             Commands::Status => status_daemon().await,
-            Commands::CurrentConfig => current_config().await,
-            Commands::ViewPromptFile => view_prompt_file().await,
-            Commands::UpdateApiKey { value } => update_api_key(value).await,
-            Commands::UpdatePromptFilePath { value } => update_prompt_file(value).await,
+
+            // config handlers
+            Commands::CurrentConfig => current_config(&config).await,
+            Commands::ViewPromptFile => view_prompt_file(&config).await,
+            Commands::EditConfig => edit_config(&mut config.clone()).await,
+
+            // utils handlers
+            Commands::Rename { file_path } => rename_file(file_path).await,
+            Commands::ProcessExistingScreenshots => process_existing_screenshots().await,
             Commands::Daemon => daemon().await,
+
+            // log handlers
             Commands::InfoLogs => info_logs().await,
             Commands::ErrorLogs => error_logs().await,
-        }
-    }
-}
-
-const NOTE: &str = "⚠️ Note: If you have updated the screenshot directory, you need to restart the daemon.\n Use `peeksy restart` to restart the daemon.";
-
-async fn is_daemon_running() -> (bool, u32) {
-    let pid = pid::get_pid();
-    match pid {
-        Ok(pid) => {
-            let process = std::process::Command::new("ps")
-                .args(["-p", &pid.to_string()])
-                .output()
-                .unwrap();
-            (process.status.success(), pid)
-        }
-        Err(_) => (false, 0),
-    }
-}
-
-async fn status_daemon() {
-    let (is_running, pid) = is_daemon_running().await;
-    if is_running {
-        println!("Peeksy daemon is running with PID {}\n\n{}", pid, NOTE);
-    } else {
-        println!("Peeksy daemon is not running");
-    }
-}
-
-async fn restart_daemon() {
-    stop_daemon().await;
-    start_daemon().await;
-}
-
-async fn stop_daemon() {
-    let (is_running, pid) = is_daemon_running().await;
-    if !is_running {
-        println!("Peeksy daemon is not running");
-        return;
-    }
-
-    println!("Stopping Peeksy daemon with PID {}", pid);
-
-    if let Err(e) = std::process::Command::new("kill")
-        .arg(pid.to_string())
-        .output()
-    {
-        println!("Failed to stop daemon: {}", e);
-        return;
-    }
-
-    // Give process time to terminate
-    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-
-    // Verify daemon was stopped
-    let (still_running, _) = is_daemon_running().await;
-    if still_running {
-        println!("❌ Failed to stop Peeksy daemon with PID {}", pid);
-    } else {
-        println!("✅ Peeksy daemon stopped successfully");
-    }
-}
-
-async fn start_daemon() {
-    let (is_running, pid) = is_daemon_running().await;
-    if is_running {
-        println!(
-            "Peeksy daemon is already running with PID {}\n\n{}",
-            pid, NOTE
-        );
-        return;
-    }
-
-    let current_exe = std::env::current_exe().expect("Failed to get current executable path");
-    let screenshot_dir = peeksy::get_screenshot_dir();
-
-    // Spawn daemon as separate process
-    match std::process::Command::new(&current_exe)
-        .arg("daemon")
-        .spawn()
-    {
-        Ok(_) => {
-            // Give it a moment to start
-            std::thread::sleep(std::time::Duration::from_millis(1000));
-
-            let (is_running, pid) = is_daemon_running().await;
-            if is_running {
-                println!(
-                    "✅ Daemon started successfully with PID {} at screenshot directory: {}",
-                    pid,
-                    screenshot_dir.display()
-                );
-            } else {
-                println!("❌ Failed to start daemon");
-            }
-        }
-        Err(e) => {
-            println!("❌ Failed to spawn daemon: {}", e);
         }
     }
 }
@@ -158,38 +84,20 @@ async fn daemon() {
     runner::run().await;
 }
 
-async fn update_api_key(value: &str) {
-    let mut config = config::config::Config::fetch().expect("Failed to fetch config");
-    config.openai_api_key = Some(value.to_string());
-    config.save().expect("Failed to save config");
+async fn rename_file(file_path: &str) {
+    /*
+        1. Convert the file_path to PathBuf
+        2. Check if the file exists at the path, and is an image. If no, print error.
+        3.
+    */
 }
 
-async fn update_prompt_file(value: &str) {
-    let mut config = config::config::Config::fetch().expect("Failed to fetch config");
-    config.openai_prompt_file_path = Some(value.to_string());
-    config.save().expect("Failed to save config");
-}
-
-async fn current_config() {
-    let config = config::config::Config::fetch().expect("Failed to fetch config");
-    println!("{}", serde_json::to_string_pretty(&config).unwrap());
-}
-
-async fn view_prompt_file() {
-    let config = config::config::Config::fetch().expect("Failed to fetch config");
-    let prompt_file = config.openai_prompt_file_path.unwrap();
-    let prompt = std::fs::read_to_string(prompt_file).expect("Failed to read prompt file");
-    println!("----------\n{}\n---------", prompt);
-}
-
-async fn info_logs() {
-    let path = dirs::config_dir().unwrap().join("peeksy");
-    let logs = std::fs::read_to_string(path.join("info.log")).expect("Failed to read info.log");
-    println!("---------\n{}", logs);
-}
-
-async fn error_logs() {
-    let path = dirs::config_dir().unwrap().join("peeksy");
-    let logs = std::fs::read_to_string(path.join("error.log")).expect("Failed to read error.log");
-    println!("---------\n{}", logs);
+async fn process_existing_screenshots() {
+    /*
+    1. Get the Screenshot Dir
+    2. Fetch all the screenshots in the folder
+    3. count the total screenshots and print the total count
+    4. ask confirmation from user if they want to continue
+    5. if Yes, start a seprate process and handle all screenshot one by one.
+    */
 }

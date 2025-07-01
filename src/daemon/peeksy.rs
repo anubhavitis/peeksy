@@ -12,7 +12,7 @@ use chrono::Local;
 use log::{error, info};
 use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
-use crate::{config, daemon::file::SSController};
+use crate::{ai::ai::OpenAI, config, daemon::file::SSController};
 
 fn get_controller() -> Result<SSController, String> {
     let config = config::config::Config::fetch().expect("Failed to fetch config");
@@ -24,7 +24,8 @@ fn get_controller() -> Result<SSController, String> {
     }
 
     let prompt = std::fs::read_to_string(&openai_prompt_file).expect("Failed to read prompt file");
-    Ok(SSController::new(openai_api_key, prompt))
+    let ai = OpenAI::new(openai_api_key, prompt);
+    Ok(SSController::new(ai))
 }
 
 fn get_clean_path(raw: String, home: PathBuf) -> Result<PathBuf, Error> {
@@ -118,7 +119,7 @@ pub async fn controller(shutdown: Arc<AtomicBool>) {
                 {
                     for path in paths {
                         info!("Detected new file: {:?}", path);
-                        let resp = ss_controller.process_file(&path).await;
+                        let resp = ss_controller.process_ss(&path).await;
                         if let Err(e) = resp {
                             error!("Error processing file: {:?}", e);
                         }
