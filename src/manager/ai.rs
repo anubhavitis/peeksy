@@ -32,10 +32,19 @@ impl OpenAI {
         // Create the JSON payload
         let payload = json!({
             "model": self.model,
-            "messages": [{
-                "role": "user",
-                "content": [
-                    { "type": "text", "text": self.prompt },
+            "messages": [
+                    {
+                        "role": "system",
+                        "content": r#"You are a filename generation bot. You must return only a filename based on the attached image. No explanations.
+                         No descriptions. No punctuation. No quotes. No code blocks. Just a lowercase hyphenated filename of 3 to 8 words in plain text."#
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                    {
+                        "type": "text",
+                        "text": self.prompt
+                    },
                     {
                         "type": "image_url",
                         "image_url": {
@@ -44,7 +53,8 @@ impl OpenAI {
                         }
                     }
                 ]
-            }],
+            }
+            ],
         });
 
         // Send the request to OpenAI API

@@ -86,7 +86,7 @@ fn default_config_setup() -> Result<(), Box<anyhow::Error>> {
     }
 
     if !config.openai_model_exists() {
-        config.openai_model = Some("gpt-4.1".to_string());
+        config.openai_model = Some("gpt-4o".to_string());
         config.save()?;
     }
 
