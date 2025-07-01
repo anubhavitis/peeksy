@@ -106,11 +106,13 @@ impl SSManager {
 
         let parent = path.parent().unwrap_or(Path::new("."));
 
+        println!("Processing image: {:?}", path);
         let mut new_filename: String = self.ai.get_name(&path).await;
         new_filename += &format!(".{}", file_type);
-        dbg!(&new_filename);
 
         let new_path = parent.join(new_filename);
+
+        println!("New filename: {:?}", new_path);
 
         if let Err(e) = fs::copy(path.clone(), &new_path) {
             return Err(anyhow::anyhow!(

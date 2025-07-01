@@ -78,9 +78,6 @@ async fn rename_file(file_name: &str) {
     // TODO: Check for config's validity
 
     let file_name = PathBuf::from(file_name);
-    dbg!(&file_name);
-    let working_dir = std::env::current_dir().unwrap();
-    dbg!(&working_dir);
 
     if !is_image(&file_name) {
         error!(
@@ -108,7 +105,6 @@ async fn process_existing_screenshots() {
     let ss_dir = get_screenshot_dir();
 
     let files = fs::read_dir(ss_dir).unwrap();
-    dbg!(&files);
 
     let config = Config::fetch().unwrap();
     let ai = OpenAI::new(
@@ -122,7 +118,7 @@ async fn process_existing_screenshots() {
     for file in files {
         let file = file.unwrap();
         let file_path = file.path();
-        dbg!(&file_path);
+
         if ss_manager.is_screenshot_file(&file_path) {
             screenshot.push(file_path);
         }
