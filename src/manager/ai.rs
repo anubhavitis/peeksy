@@ -76,7 +76,6 @@ impl OpenAI {
         let response_json: serde_json::Value =
             serde_json::from_str(&response_text).expect("Failed to parse response");
 
-        dbg!(&response_json);
         let name = response_json["choices"][0]["message"]["content"]
             .as_str()
             .unwrap_or("unknown-name")

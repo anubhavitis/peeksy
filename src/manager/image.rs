@@ -23,11 +23,13 @@ impl SSManager {
     }
 
     pub fn is_screenshot_file(&self, path: &PathBuf) -> bool {
-        if let Some(mut filename) = path.file_name().and_then(|n| n.to_str()) {
-            filename = &filename[1..];
-            let lowercase = filename.to_lowercase();
+        if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
+            let mut lowercase = filename.to_lowercase();
+            if lowercase.starts_with(".") {
+                lowercase = lowercase[1..].to_string();
+            }
             return (lowercase.starts_with("screenshot") || lowercase.contains("screen shot"))
-                && !filename.ends_with("-ss")
+                && !lowercase.ends_with("-ss")
                 && path.extension().map_or(false, |ext| ext == "png");
         }
         false
@@ -89,7 +91,7 @@ impl SSManager {
 
         let path = self.modify_ss_path(path);
 
-        if !self.is_recent(&path, Duration::from_secs(30)) {
+        if !self.is_recent(&path, Duration::from_secs(60)) {
             return Err(anyhow::anyhow!("Skipping old file: {:?}", path));
         }
 
