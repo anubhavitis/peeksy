@@ -75,7 +75,11 @@ impl Args {
 }
 
 async fn rename_file(file_name: &str) {
-    // TODO: Check for config's validity
+    let config = Config::fetch().expect("Failed to fetch config");
+    if !config.ready() {
+        error!("Config is not ready. Please run `peeksy edit-config` to set it.");
+        return;
+    }
 
     let file_name = PathBuf::from(file_name);
 

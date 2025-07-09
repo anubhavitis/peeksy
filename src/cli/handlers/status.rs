@@ -1,5 +1,6 @@
 use crate::{
     daemon::{daemon, pid},
+    launchd::launchd,
     utils,
 };
 
@@ -65,6 +66,9 @@ pub async fn stop_daemon() {
     } else {
         println!("✅ Peeksy daemon stopped successfully");
     }
+
+    let launchd = launchd::LaunchD::new();
+    launchd.unload().await;
 }
 
 pub async fn start_daemon() {
@@ -107,6 +111,9 @@ pub async fn start_daemon() {
             println!("❌ Failed to spawn daemon: {}", e);
         }
     }
+
+    let launchd = launchd::LaunchD::new();
+    launchd.load().await;
 }
 
 pub async fn daemon() {
