@@ -67,18 +67,18 @@ impl LaunchD {
 
         // if no lines
         let line = lines.next();
-        if line.is_none() {
-            return Err(anyhow::anyhow!("LaunchD plist is not running"));
+        match line {
+            Some(line) => {
+                let pid = line
+                    .split_whitespace()
+                    .next()
+                    .unwrap()
+                    .parse::<i32>()
+                    .unwrap_or(0);
+                Ok(pid)
+            }
+            None => Err(anyhow::anyhow!("LaunchD plist is not running")),
         }
-
-        let pid = line
-            .unwrap()
-            .split_whitespace()
-            .next()
-            .unwrap()
-            .parse::<i32>()
-            .unwrap_or(0);
-        return Ok(pid);
     }
 
     pub async fn is_loaded(&self) -> bool {
