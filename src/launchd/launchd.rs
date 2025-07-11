@@ -10,7 +10,7 @@ const PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
             <string>com.anubhavitis.peeksy</string>
             <key>ProgramArguments</key>
             <array>
-                <string>peeksy</string>
+                <string>/opt/homebrew/bin/peeksy</string>
                 <string>daemon</string>
             </array>
             <key>RunAtLoad</key>
