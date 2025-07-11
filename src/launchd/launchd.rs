@@ -66,12 +66,12 @@ impl LaunchD {
             .filter(|line| line.contains("com.anubhavitis.peeksy"));
 
         // if no lines
-        if lines.next().is_none() {
+        let line = lines.next();
+        if line.is_none() {
             return Err(anyhow::anyhow!("LaunchD plist is not running"));
         }
 
-        let pid = lines
-            .next()
+        let pid = line
             .unwrap()
             .split_whitespace()
             .next()
