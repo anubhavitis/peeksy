@@ -51,7 +51,63 @@ impl LaunchD {
         std::fs::write(self.plist_path.clone(), PLIST).unwrap();
     }
 
+    async fn status(&self) -> Result<i32, anyhow::Error> {
+        info!("checking LaunchD plist status");
+        let output = Command::new("launchctl").args(["list"]).output().unwrap();
+
+        // here output will be of form ``` <PID> <status> <plist>``` or null
+        // if null, then the plist is not loaded
+        // if not null, then plist is loaded.
+        // if PID > 0 the process is running, else not.
+
+        let output_str = String::from_utf8(output.stdout).unwrap();
+        let mut lines = output_str
+            .lines()
+            .filter(|line| line.contains("com.anubhavitis.peeksy"));
+
+        // if no lines
+        if lines.next().is_none() {
+            return Err(anyhow::anyhow!("LaunchD plist is not running"));
+        }
+
+        let pid = lines
+            .next()
+            .unwrap()
+            .split_whitespace()
+            .next()
+            .unwrap()
+            .parse::<i32>()
+            .unwrap_or(0);
+        return Ok(pid);
+    }
+
+    pub async fn is_loaded(&self) -> bool {
+        match self.status().await {
+            Ok(_) => true,
+            Err(_) => false,
+        }
+    }
+
+    pub async fn is_running(&self) -> bool {
+        match self.status().await {
+            Ok(pid) => pid > 0,
+            Err(_) => false,
+        }
+    }
+
     pub async fn load(&self) {
+        if self.is_loaded().await {
+            // if loaded, but not running, then unload first.
+            if self.is_running().await {
+                info!("LaunchD plist is already running");
+                return;
+            }
+
+            info!("LaunchD plist is already loaded, but not running. Reloading...");
+            self.unload().await;
+            return;
+        }
+
         info!("loading LaunchD plist path: {}", self.plist_path.display());
         let output = Command::new("launchctl")
             .args(["load", self.plist_path.to_str().unwrap()])
@@ -61,6 +117,11 @@ impl LaunchD {
     }
 
     pub async fn unload(&self) {
+        if !self.is_loaded().await {
+            info!("LaunchD plist is not running");
+            return;
+        }
+
         info!(
             "unloading LaunchD plist path: {}",
             self.plist_path.display()
