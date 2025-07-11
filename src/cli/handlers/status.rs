@@ -64,11 +64,10 @@ pub async fn stop_daemon() {
     if still_running {
         println!("❌ Failed to stop Peeksy daemon with PID {}", pid.unwrap());
     } else {
+        let launchd = launchd::LaunchD::new();
+        launchd.unload().await;
         println!("✅ Peeksy daemon stopped successfully");
     }
-
-    let launchd = launchd::LaunchD::new();
-    launchd.unload().await;
 }
 
 pub async fn start_daemon() {
@@ -98,6 +97,8 @@ pub async fn start_daemon() {
             // check if the daemon is successfully running
             let (is_running, pid) = is_daemon_running().await;
             if is_running {
+                let launchd = launchd::LaunchD::new();
+                launchd.load().await;
                 println!(
                     "✅ Daemon started successfully with PID {} at screenshot directory: {}",
                     pid.unwrap(),
@@ -111,9 +112,6 @@ pub async fn start_daemon() {
             println!("❌ Failed to spawn daemon: {}", e);
         }
     }
-
-    let launchd = launchd::LaunchD::new();
-    launchd.load().await;
 }
 
 pub async fn daemon() {

@@ -2,8 +2,7 @@ use std::{path::PathBuf, process::Command};
 
 use log::info;
 
-const PLIST: &str = r#"
-        <?xml version="1.0" encoding="UTF-8"?>
+const PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
         <dict>
@@ -23,8 +22,7 @@ const PLIST: &str = r#"
             <key>StandardErrorPath</key>
             <string>/tmp/peeksy.err</string>
         </dict>
-        </plist>
-    "#;
+        </plist>"#;
 
 pub struct LaunchD {
     plist_path: PathBuf,
@@ -45,17 +43,16 @@ impl LaunchD {
     fn setup(&self) {
         let plist_dir = self.plist_path.parent().unwrap();
         if !plist_dir.exists() {
-            info!("Creating LaunchD directory: {}", plist_dir.display());
             std::fs::create_dir_all(plist_dir).unwrap();
         }
     }
 
     fn write_plist(&self) {
         std::fs::write(self.plist_path.clone(), PLIST).unwrap();
-        info!("LaunchD plist written successfully");
     }
 
     pub async fn load(&self) {
+        info!("loading LaunchD plist path: {}", self.plist_path.display());
         let output = Command::new("launchctl")
             .args(["load", self.plist_path.to_str().unwrap()])
             .output()
@@ -64,6 +61,10 @@ impl LaunchD {
     }
 
     pub async fn unload(&self) {
+        info!(
+            "unloading LaunchD plist path: {}",
+            self.plist_path.display()
+        );
         let output = Command::new("launchctl")
             .args(["unload", self.plist_path.to_str().unwrap()])
             .output()
