@@ -1,10 +1,3 @@
-
-
-> ⚠️ **DEPRECATION NOTICE**: This CLI version of Peeksy is now deprecated. All future development has moved to the new GUI application: **[peeksy-app](https://github.com/anubhavitis/peeksy-app)**. 
-> 
-> The new GUI version offers a much better user experience with visual interface, drag-and-drop functionality, and enhanced features. Please migrate to [peeksy-app](https://github.com/anubhavitis/peeksy-app) for continued updates and support.
-
-
 <img src="assets/peeksy.png" width="150" height="150" alt="Peeksy Logo" />
 
 # Peeksy
